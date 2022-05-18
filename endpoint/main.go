@@ -9,7 +9,7 @@ import (
 
 var energyRechargeRate = 1.0
 var carrotEnergyCost = 10.0
-var carrotLifetime = time.Second * 10
+var carrotLifetime = time.Second * 20
 var bunnyEnergyCost = 100.0
 
 func main() {
@@ -24,17 +24,16 @@ func main() {
 	constantsGroup.GET("/carrotLifetime", getCarrotLifetime)
 	constantsGroup.GET("/bunnyEnergyCost", getBunnyEnergyCost)
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	getNewGroup := r.Group("/getNew")
+	getNewGroup.GET("/bunnies/:ownerID", getBunniesSinceLastTime)
+	getNewGroup.GET("/carrots/", getCarrotsSinceLastTime)
+
+	creationGroup := r.Group("/create")
+	creationGroup.POST("/bunny/:bunnyName", addBunny)
+	creationGroup.POST("/carrot", addCarrot)
+
 	r.GET("/", getBunnies)
-	r.GET("/newBunnies/:ownerID", getBunniesSinceLastTime)
 	r.GET("/myBunnies/:ownerID", getBunniesByOwner)
-	//r.POST("/bounce")
-	r.POST("/new/:bunnyName", addBunny)
-	r.POST("/new/carrot", addCarrot)
 	r.POST("/bounce/:bunnyID", bounce)
 	r.POST("/procreate/:bunny1/:bunny2", procreate)
 
@@ -105,7 +104,7 @@ func extractCoordinates(c *gin.Context) (float64, float64, error) {
 }
 
 func addCarrot(c *gin.Context) {
-	owner := c.DefaultQuery("owner", "-1") // shortcut for c.Request.URL.Query().Get("lastname")
+	owner := c.DefaultQuery("owner", "-1")
 	rabbitOwner := extractPlayerFromStringID(owner)
 
 	updatePlayerEnergy(&rabbitOwner)
@@ -134,6 +133,7 @@ func addCarrot(c *gin.Context) {
 }
 
 func addBunny(c *gin.Context) {
+	//TODO move param to query
 	bunnyName := c.Param("bunnyName")
 	owner := c.DefaultQuery("owner", "0") // shortcut for c.Request.URL.Query().Get("lastname")
 	ownerId, _ := strconv.ParseUint(owner, 10, 64)
@@ -172,19 +172,34 @@ func updatePlayerEnergy(rabbitOwner *RabbitOwner) {
 	rabbitOwner.LastEnergyCheck = currentTime
 }
 
-func updatePlayerTimeChecked(rabbitOwner *RabbitOwner) {
+func updatePlayerCarrotTimeChecked(rabbitOwner *RabbitOwner) {
+	currentTime := time.Now()
+	rabbitOwner.LastCarrotsCheck = currentTime
+}
+
+func getCarrotsSinceLastTime(c *gin.Context) {
+	owner := c.DefaultQuery("owner", "-1")
+	rabbitOwner := extractPlayerFromStringID(owner)
+
+	var carrots []Carrot
+	DB.Where("created_at > ", rabbitOwner.LastCarrotsCheck).Find(&carrots)
+
+	updatePlayerCarrotTimeChecked(&rabbitOwner)
+	DB.Save(&rabbitOwner)
+
+	c.JSON(http.StatusOK, carrots)
 }
 
 func getBunniesSinceLastTime(c *gin.Context) {
+	//TODO move param to query
 	ownerParam := c.Param("ownerID")
 
 	rabbitOwner := extractPlayerFromStringID(ownerParam)
 
 	var rabbits []Rabbit
-	DB.Where("created_at > ", rabbitOwner.LastCheck).Find(&rabbits)
+	DB.Where("created_at > ", rabbitOwner.LastBunniesCheck).Find(&rabbits)
 
 	updatePlayerEnergy(&rabbitOwner)
-	updatePlayerTimeChecked(&rabbitOwner)
 
 	DB.Save(&rabbitOwner)
 

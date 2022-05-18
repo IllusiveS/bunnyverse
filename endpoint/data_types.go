@@ -10,6 +10,7 @@ type RabbitOwner struct {
 	Name             string
 	LastEnergyCheck  time.Time
 	LastBunniesCheck time.Time
+	LastCarrotsCheck time.Time
 	Energy           float64
 	Rabbits          []Rabbit `gorm:"foreignKey:ID;references:ID"`
 }
