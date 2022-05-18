@@ -1,0 +1,27 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  web:
+    build: endpoint/.
+    command:
+      go run test_rest
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/code
+      - logvolume01:/var/log
+    links:
+      - db
+  db:
+    image: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+    environment:
+      "POSTGRES_PASSWORD" : "postgres"
+      "POSTGRES_USER" : "postgres"
+      "POSTGRES_DB" : "bunnycalypse"
+    user: postgres
+volumes:
+  logvolume01: {}
