@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func bounce(c *gin.Context) {
@@ -35,12 +36,18 @@ func getBunniesSinceLastTime(c *gin.Context) {
 	//TODO move param to query
 	ownerParam := c.Param("ownerID")
 
-	rabbitOwner, _ := extractPlayerFromStringID(ownerParam)
+	rabbitOwner, err := extractPlayerFromStringID(ownerParam)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
 
 	var rabbits []Rabbit
-	DB.Where("created_at > ", rabbitOwner.LastBunniesCheck).Find(&rabbits)
+	DB.Where("created_at > ?", rabbitOwner.LastBunniesCheck).Find(&rabbits)
 
 	updatePlayerEnergy(rabbitOwner)
+	rabbitOwner.LastBunniesCheck = time.Now()
 
 	DB.Save(&rabbitOwner)
 

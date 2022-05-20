@@ -17,6 +17,7 @@ func ConnectDatabase() {
 
 	database.AutoMigrate(&Rabbit{})
 	database.AutoMigrate(&RabbitOwner{})
+	database.AutoMigrate(&Carrot{})
 
 	DB = database
 }

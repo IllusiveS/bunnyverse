@@ -59,7 +59,7 @@ func extractPlayerFromIDContext(c *gin.Context) (*RabbitOwner, error) {
 func extractPlayerFromStringID(ownerIdStr string) (*RabbitOwner, error) {
 	ownerId, err := strconv.ParseUint(ownerIdStr, 10, 64)
 
-	if err == nil {
+	if err != nil {
 		return nil, err
 	}
 

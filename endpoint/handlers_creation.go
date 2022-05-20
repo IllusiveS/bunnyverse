@@ -16,13 +16,7 @@ func addBunny(c *gin.Context) {
 	newRabbit := Rabbit{Name: bunnyName, Owner: ownerId}
 	result := DB.Create(&newRabbit)
 
-	playerOwner, _ := extractPlayerFromStringID(owner)
-
-	spawnEvent := RabbitSpawn{CreatedRabbit: newRabbit, EnergyCost: 50, Creator: *playerOwner}
-
-	DB.Create(spawnEvent)
-
-	if result.RowsAffected > 0 {
+	if result.Error == nil {
 		c.JSON(http.StatusOK, newRabbit)
 	} else {
 		c.JSON(http.StatusBadRequest, newRabbit)

@@ -21,14 +21,14 @@ type Carrot struct {
 	xCoordinate float64
 	yCoordinate float64
 	EnergyCost  float64
-	Creator     RabbitOwner
+	Creator     RabbitOwner `gorm:"foreignKey:ID;references:ID"`
 }
 
 type RabbitSpawn struct {
 	gorm.Model
 	CreatedRabbit Rabbit
 	EnergyCost    float64
-	Creator       RabbitOwner
+	Creator       RabbitOwner `gorm:"foreignKey:ID;references:ID"`
 }
 
 type Rabbit struct {
@@ -41,6 +41,9 @@ type Rabbit struct {
 	R          uint32
 	G          uint32
 	B          uint32
+	SizeX      float64
+	SizeY      float64
+	EnergyCost float64
 	Owner      uint64
 	Parents    []Rabbit `gorm:"foreignKey:ID;references:ID"`
 }
