@@ -7,8 +7,8 @@ import (
 )
 
 var energyRechargeRate = 1.0
-var carrotEnergyCost = 10.0
-var carrotLifetime = time.Second * 20
+var carrotEnergyCost = 20.0
+var carrotLifetime = time.Second * 30
 var bunnyEnergyCost = 100.0
 
 func getEnergyRechargeRate(c *gin.Context) {

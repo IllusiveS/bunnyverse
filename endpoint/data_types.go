@@ -21,7 +21,7 @@ type Carrot struct {
 	xCoordinate float64
 	yCoordinate float64
 	EnergyCost  float64
-	Creator     RabbitOwner `gorm:"foreignKey:ID;references:ID"`
+	Owner       uint64
 }
 
 type RabbitSpawn struct {
@@ -34,6 +34,8 @@ type RabbitSpawn struct {
 type Rabbit struct {
 	gorm.Model
 	Name       string
+	LocationX  float64
+	LocationY  float64
 	Fluffiness uint32 //0-1000
 	EarLength  float64
 	Dots       uint64

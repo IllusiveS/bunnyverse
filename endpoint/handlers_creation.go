@@ -13,7 +13,14 @@ func addBunny(c *gin.Context) {
 	owner := c.DefaultQuery("owner", "0") // shortcut for c.Request.URL.Query().Get("lastname")
 	ownerId, _ := strconv.ParseUint(owner, 10, 64)
 
-	newRabbit := Rabbit{Name: bunnyName, Owner: ownerId}
+	xCoord, yCoord, err := extractCoordinates(c)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	newRabbit := Rabbit{Name: bunnyName, Owner: ownerId, LocationX: xCoord, LocationY: yCoord, EnergyCost: bunnyEnergyCost}
 	result := DB.Create(&newRabbit)
 
 	if result.Error == nil {
@@ -45,7 +52,7 @@ func addCarrot(c *gin.Context) {
 
 	rabbitOwner.Energy -= carrotEnergyCost
 
-	newCarrot := Carrot{xCoordinate: xCoord, yCoordinate: yCoord, LifetimeEnd: time.Now().Add(carrotLifetime), EnergyCost: carrotEnergyCost, Creator: *rabbitOwner}
+	newCarrot := Carrot{xCoordinate: xCoord, yCoordinate: yCoord, LifetimeEnd: time.Now().Add(carrotLifetime), EnergyCost: carrotEnergyCost, Owner: uint64(rabbitOwner.ID)}
 	DB.Create(&newCarrot)
 	DB.Save(&rabbitOwner)
 
