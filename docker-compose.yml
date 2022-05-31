@@ -1,7 +1,7 @@
 version: "2.2"  # optional since v1.27.0
 services:
   web:
-    build: endpoint/.
+    build: .
     command:
       go run test_rest
     ports:
