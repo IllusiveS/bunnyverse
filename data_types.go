@@ -1,4 +1,4 @@
-package main
+package test_rest
 
 import (
 	"gorm.io/gorm"
